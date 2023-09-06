@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const server_1 = require("@apollo/server");
 const express4_1 = require("@apollo/server/express4");
+const db_1 = require("./lib/db");
 function server() {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, express_1.default)();
@@ -26,11 +27,36 @@ function server() {
                 hello:String,
                 say(name:String):String!
             }
+
+            type Mutation{
+                createuser(firstName:String!,lastName:String!,email:String!,password:String!):Boolean
+            }
         `,
             resolvers: {
                 Query: {
                     hello: () => 'This is Graphql server',
                     say: (_, { name }) => `Hello, ${name} How are you?`
+                },
+                Mutation: {
+                    createuser: (_, { firstName, lastName, email, password }) => __awaiter(this, void 0, void 0, function* () {
+                        try {
+                            yield db_1.prismaClient.user.create({
+                                data: {
+                                    email,
+                                    firstName,
+                                    lastName,
+                                    password,
+                                    salt: "random_salt",
+                                    profileImageURL: "random_photo"
+                                }
+                            });
+                            return true;
+                        }
+                        catch (error) {
+                            console.log(error);
+                            return false;
+                        }
+                    })
                 }
             }
         });
