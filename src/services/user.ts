@@ -1,8 +1,7 @@
 import { prismaClient } from "../lib/db"
 var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
-
-const JWT_SECRET = 'anandateertha'
+const JWT_SECRET='anandateertha'
 
 export interface CreateUserPayload {
     firstName: string,
@@ -61,6 +60,15 @@ class UserService {
         //Gen Token
         const authtoken = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET)
         return authtoken
+    }
+
+    public static decodeTheToken(token:string){
+        return jwt.verify(token,JWT_SECRET)
+    }
+
+    public static async getUserById(id:string){
+        const user=prismaClient.user.findUnique({where:{id}})
+        return user
     }
 }
 
